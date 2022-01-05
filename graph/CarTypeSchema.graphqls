@@ -1,0 +1,5 @@
+type Car {
+    id: ID!
+    name: String!
+    color: String!
+}
