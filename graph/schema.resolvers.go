@@ -5,8 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/brianvoe/gofakeit"
 	"github.com/dgryski/trifles/uuid"
 	"github.com/mathnoob/graphql-notes-go/graph/generated"
@@ -14,7 +12,19 @@ import (
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	todo := &model.Todo{
+		ID:   uuid.UUIDv4(),
+		Text: input.Text,
+		Done: false,
+		User: &model.User{
+			ID:   input.UserID,
+			Name: gofakeit.Name(),
+		},
+	}
+
+	r.Root.Todos = append(r.Root.Todos, todo)
+
+	return todo, nil
 }
 
 func (r *mutationResolver) CreateCar(ctx context.Context) (*model.Car, error) {
@@ -24,11 +34,11 @@ func (r *mutationResolver) CreateCar(ctx context.Context) (*model.Car, error) {
 		Color: gofakeit.Color(),
 	}
 
-	r.AllCars = append(r.AllCars, car)
+	r.Root.Cars = append(r.Root.Cars, car)
 
 	r.mu.Lock()
 	for _, observer := range r.CarsObservers {
-		observer <- r.AllCars
+		observer <- r.Root.Cars
 	}
 	r.mu.Unlock()
 
@@ -36,11 +46,11 @@ func (r *mutationResolver) CreateCar(ctx context.Context) (*model.Car, error) {
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Root.Todos, nil
 }
 
 func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Root.Cars, nil
 }
 
 func (r *subscriptionResolver) Cars(ctx context.Context) (<-chan []*model.Car, error) {
@@ -58,7 +68,7 @@ func (r *subscriptionResolver) Cars(ctx context.Context) (<-chan []*model.Car, e
 	r.CarsObservers[id] = cars
 	r.mu.Unlock()
 
-	r.CarsObservers[id] <- r.AllCars
+	r.CarsObservers[id] <- r.Root.Cars
 	return cars, nil
 }
 

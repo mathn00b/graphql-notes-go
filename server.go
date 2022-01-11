@@ -18,7 +18,10 @@ import (
 	"github.com/mathnoob/graphql-notes-go/graph/generated"
 )
 
-const defaultPort = "8080"
+const (
+	defaultPort = "8080"
+	stubsCount  = 10
+)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -29,7 +32,10 @@ func main() {
 	u := NewUser()
 
 	c := generated.Config{Resolvers: &graph.Resolver{
-		AllCars:       []*model.Car{},
+		Root: &graph.Root{
+			Cars:  graph.NewCarsStub(stubsCount),
+			Todos: graph.NewTodosStub(stubsCount),
+		},
 		CarsObservers: map[string]chan []*model.Car{},
 	}}
 
