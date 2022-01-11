@@ -54,6 +54,3 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
-  Car:
-    model:
-      - github.com/mathnoob/graphql-notes-go/graph.Car
